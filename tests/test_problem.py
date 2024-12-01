@@ -28,7 +28,8 @@ def test_problem_database_insertion(app):
             test_cases=[
                 {"input": "2.5 + 3.5", "expected": 6.0},
                 {"input": "-1.5 + 2.5", "expected": 1.0}
-            ]
+            ],
+            starter_code="# Write your solution here\n"  # Added this line
         )
         db.session.add(problem)
         db.session.commit()
@@ -36,3 +37,4 @@ def test_problem_database_insertion(app):
         saved_problem = Problem.query.first()
         assert saved_problem.topic == "Numerical Computation"
         assert len(saved_problem.test_cases) == 2
+        assert saved_problem.starter_code is not None

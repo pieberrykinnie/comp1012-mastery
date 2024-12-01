@@ -11,4 +11,5 @@ class Problem(db.Model):
     difficulty = db.Column(db.Integer, nullable=False)
     description = db.Column(db.Text, nullable=False)
     test_cases = db.Column(db.JSON, nullable=False)
+    starter_code = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
