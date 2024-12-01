@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask import Flask, request, jsonify
 from flask_login import LoginManager
 from .auth import auth_bp, login_manager
@@ -14,7 +15,9 @@ def create_app(test_config=None):
         app.config.from_mapping(
             SECRET_KEY='dev',
             SQLALCHEMY_DATABASE_URI='sqlite:///mastery.db',
-            SQLALCHEMY_TRACK_MODIFICATIONS=False
+            SQLALCHEMY_TRACK_MODIFICATIONS=False,
+            PERMANENT_SESSION_LIFETIME=timedelta(
+                days=7)  # Session expires in 7 days
         )
     else:
         app.config.update(test_config)
