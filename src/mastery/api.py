@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify
+from flask_login import LoginManager
+from .auth import auth_bp, login_manager
 from .models import db
 from .repository import ProblemRepository
 from .tracker import ProgressTracker
@@ -9,10 +11,11 @@ def create_app(test_config=None):
     app = Flask(__name__)
 
     if test_config is None:
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-            'DATABASE_URL', 'sqlite:///mastery.db'
+        app.config.from_mapping(
+            SECRET_KEY='dev',
+            SQLALCHEMY_DATABASE_URI='sqlite:///mastery.db',
+            SQLALCHEMY_TRACK_MODIFICATIONS=False
         )
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     else:
         app.config.update(test_config)
 
@@ -68,5 +71,14 @@ def create_app(test_config=None):
             return jsonify(result)
         except Exception as e:
             return jsonify({'error': str(e)}), 400
+
+    # Initialize Flask-Login
+    login_manager.init_app(app)
+    app.config['SECRET_KEY'] = os.getenv(
+        'SECRET_KEY', 'dev-key-change-in-prod')
+
+    # Register blueprints only if not already registered
+    if 'auth' not in app.blueprints:
+        app.register_blueprint(auth_bp, url_prefix='/auth')
 
     return app

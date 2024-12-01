@@ -1,21 +1,23 @@
 import pytest
-from flask import Flask
-from mastery.models import db, Problem
+from mastery.api import create_app
+from mastery.models import db
 
 
 @pytest.fixture
 def app():
-    app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db.init_app(app)
-
-    with app.app_context():
-        db.create_all()
-        yield app
-        db.drop_all()
+    app = create_app({
+        'TESTING': True,
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+        'SECRET_KEY': 'test-key'
+    })
+    return app
 
 
 @pytest.fixture
 def client(app):
-    return app.test_client()
+    with app.app_context():  # Use context manager instead of push/pop
+        db.create_all()
+        with app.test_client() as client:
+            yield client
+            db.session.remove()
+            db.drop_all()
